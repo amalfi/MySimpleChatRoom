@@ -1,135 +1,82 @@
 package com.mycommunicator.main;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+
+import com.mycommunicator.model.Message;
 
 public class MessageService 
 {
 
-	public void saveMessage(String query)
+	public void saveMessage(Message message)
 	{ 
-		Statement st = null;
-	    ResultSet rs = null;
-	      
-	    Connection con = getConnectionToDB();
+		Session session = null;
 		try
 		{
-			st = con.createStatement();
-	        st.executeUpdate(query);
+		Configuration configuration = new Configuration().configure();
+    	StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
+    	SessionFactory factory = configuration.buildSessionFactory(builder.build());
+    	session = factory.openSession();
+
+    	session.beginTransaction();
+    	
+    	
+    	session.save(message);
+    	
+    	session.getTransaction().commit();
+    	session.close();
+    	
 		}
-		catch (SQLException e) 
+		catch(HibernateException he)
 		{
-			e.printStackTrace();
+			if(session!=null)
+			{
+			session.close();
+			}
+			System.out.println(he.getCause());
 		}
-		   finally
-	        {
-	            try 
-	            {
-	                if (rs != null) 
-	                {
-	                    rs.close();
-	                }
-	                if (st != null) 
-	                {
-	                    st.close();
-	                }
-	                if (con != null) 
-	                {
-	                    con.close();
-	                }
-	            } 
-	            catch (SQLException ex)
-	            {
-	              System.out.println(ex.getCause());
-	            }
-	        }
-    }
+	}
 
 	
-	public List<Message> getAllMessages(String query)
+	public List<Message> getAllMessages(String senderLogin, String receiverLogin)
 	{
-		List<Message> allMessages = new ArrayList<Message>();
-		Statement st = null;
-	    ResultSet rs = null;
-	      
-	    Connection con = getConnectionToDB();
-		
-	    try
+		try
 		{
-			st = con.createStatement();
-			rs = st.executeQuery(query);
-			  if (rs.next()) 
-			  {
-	                System.out.println(rs.getString(""));
-	           }
-		}
-		catch (SQLException e) 
-		{
-			e.printStackTrace();
-		}
-		   finally
-	        {
-	            try 
-	            {
-	                if (rs != null) 
-	                {
-	                    rs.close();
-	                }
-	                if (st != null) 
-	                {
-	                    st.close();
-	                }
-	                if (con != null) 
-	                {
-	                    con.close();
-	                }
-	            } 
-	            catch (SQLException ex)
-	            {
-	              System.out.println(ex.getCause());
-	            }
-	        }
+		Configuration configuration = new Configuration().configure();
+    	StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
+    	SessionFactory factory = configuration.buildSessionFactory(builder.build());
+    	Session session = factory.openSession();
+    	
+    	session.beginTransaction();
+    	
+    	Query query = session.createQuery("from Message where senderLogin = :senderLogin ");
+		query.setParameter("senderLogin", senderLogin );
 		
-		return allMessages;
+		List list = query.list();
+		if(list.size()!=0)
+		{
+			for(int i=0; i<list.size(); i++)
+			{
+				System.out.println(list.get(i).toString());
+			}
+		
+		}
+		
+    	session.getTransaction().commit();
+    	session.close();
+    	
+		}
+		catch(HibernateException he)
+		{
+			System.out.println(he.getCause());
+		}
+		return null;
 	}
 	
-	private Connection getConnectionToDB()
-	{
-		 	Connection con = null;
-	    
-	        String url = "jdbc:postgresql://localhost/testdb";
-	        String user = "postgres";
-	        String password = "postgres";
-	        
-	        try 
-	        {
-	            con = DriverManager.getConnection(url, user, password);
-	        } 
-	        catch (SQLException ex) 
-	        {
-	        	System.out.println(ex.getCause());
-	        }
-	        finally
-	        {
-	            try
-	            {
-	                if (con != null) 
-	                {
-	                    con.close();
-	                }
-
-	            } 
-	            catch (SQLException ex)
-	            {
-	              System.out.println(ex.getCause());
-	            }
-	        }
-	        
-	        return con;
-	}
 }

@@ -1,12 +1,19 @@
-package com.mycommunicator.main;
+package com.mycommunicator.model;
 
 public class Message
 {
-
+	private Integer id;
 	private String senderLogin;
 	private String receiverLogin;
 	private String messageContent;
 	
+	
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
 	public String getSenderLogin() {
 		return senderLogin;
 	}

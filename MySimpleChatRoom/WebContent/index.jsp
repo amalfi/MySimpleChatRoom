@@ -9,8 +9,8 @@
 <script src="./scripts/script.js"></script>
 </head>
 	<body>
-	
-	 Receiver <input type="text" name="fname">
+				<input type="hidden" id="senderLogin" value="Test">
+	 Receiver   <input type="text" name="fname" id="receiverField">
 	 <br>
 	 <br>
 	 	 <textarea rows="15" cols="50" id="conversationArea"
