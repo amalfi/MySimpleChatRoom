@@ -14,23 +14,39 @@ import com.mycommunicator.model.Message;
 
 public class MessageService 
 {
-
-	public void saveMessage(Message message)
-	{ 
+	public static SessionFactory factory;
+	
+	public Session openSessionFromFactory()
+	{
 		Session session = null;
 		try
 		{
 		Configuration configuration = new Configuration().configure();
     	StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
-    	SessionFactory factory = configuration.buildSessionFactory(builder.build());
-    	session = factory.openSession();
+	    
+    		if(factory==null)
+	    	{	
+		    	factory = configuration.buildSessionFactory(builder.build());		    	
+	    	}
+	    	session = factory.openSession();
+    	}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+    	return session;
+	}
+	
+	public void saveMessage(Session session, Message message)
+	{ 
+		try
+		{
 
     	session.beginTransaction();
     	
     	session.save(message);
     	
     	session.getTransaction().commit();
-    	session.close();
     	
 		}
 		catch(HibernateException he)
@@ -45,16 +61,11 @@ public class MessageService
 	}
 
 	
-	public List<Message> getAllMessages(String senderLogin, String receiverLogin)
+	public List<Message> getAllMessages(Session session, String senderLogin, String receiverLogin)
 	{
 		List<Message> allMessagesForGivenSenderAndReceiver = new ArrayList<Message>();
 		try
 		{
-		Configuration configuration = new Configuration().configure();
-    	StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
-    	SessionFactory factory = configuration.buildSessionFactory(builder.build());
-    	Session session = factory.openSession();
-    	
     	session.beginTransaction();
     	
     	Query query = session.createQuery("from Message where senderLogin = :senderLogin ");
@@ -72,12 +83,12 @@ public class MessageService
 		}
 		
     	session.getTransaction().commit();
-    	session.close();
     	
 		}
 		catch(HibernateException he)
 		{
 			System.out.println(he.getCause());
+			he.printStackTrace();
 		}
 		return allMessagesForGivenSenderAndReceiver;
 	}

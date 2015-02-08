@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+
 import com.mycommunicator.model.Message;
 
 /**
@@ -34,8 +37,22 @@ public class SendingServlet extends HttpServlet {
 		messageObject.setReceiverLogin(receiverLogin);
 		messageObject.setSenderLogin(senderLogin);
 		
-		MessageService messageService = new MessageService();
-		messageService.saveMessage(messageObject);
+		Session session=null;
+		try
+		{
+			MessageService messageService = new MessageService();
+			session = messageService.openSessionFromFactory();
+			messageService.saveMessage(session, messageObject);		
+		}
+		catch(HibernateException e)
+		{
+			e.getCause();
+			e.printStackTrace();
+		}
+		finally
+		{
+			session.close();	
+		}
 		
 		message = senderLogin + ":" + messageContent;
 		

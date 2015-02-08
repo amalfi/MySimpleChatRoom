@@ -13,7 +13,7 @@ $(document).ready(function()
 	        $('#conversationArea').text(allMessagesLines);  
 	        //wywolanie funkcji ustawiajacej content elementu conversationArea
 	    });
-		setTimeout(getAllMessagesFromDB, 300);
+		setTimeout(getAllMessagesFromDB, 1000);
 		
 	}
 	getAllMessagesFromDB();
@@ -25,6 +25,9 @@ $(document).ready(function()
             
         	$.get('SendingServlet',{message:messageContent, sender:senderLogin, receiver:receiverLogin},function(responseText)
         	{ 
+        		var currentConversationAreaValue=$('#conversationArea').val;
+        		var currentConversationAreaValueWithNewLine=currentConversationAreaValue+"\n"+responseText;
+        		 $('#conversationArea').text(currentConversationAreaValueWithNewLine);  
         		console.log(responseText);     
             });
         });

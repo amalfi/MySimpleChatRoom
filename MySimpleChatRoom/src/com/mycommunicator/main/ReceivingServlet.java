@@ -1,12 +1,16 @@
 package com.mycommunicator.main;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import com.google.gson.Gson;
 import com.mycommunicator.model.Message;
@@ -31,7 +35,22 @@ public class ReceivingServlet extends HttpServlet {
 		String senderLogin = String.valueOf(request.getParameter("sender"));
 		String receiverLogin = String.valueOf(request.getParameter("receiver"));
 		MessageService messageService = new MessageService();
-		List<Message> allMessagesForGivenSenderAndReceiver = messageService.getAllMessages(senderLogin, receiverLogin);
+		Session session=null;
+		List<Message> allMessagesForGivenSenderAndReceiver = new ArrayList<Message>();
+		try
+		{
+		session = messageService.openSessionFromFactory();
+		allMessagesForGivenSenderAndReceiver = messageService.getAllMessages(session,senderLogin, receiverLogin);
+		}
+		catch(HibernateException e)
+		{
+			e.getCause();
+			e.printStackTrace();
+		}
+		finally
+		{
+			session.close();	
+		}
 		String messagesJSON = returnMessagesAsJSON(allMessagesForGivenSenderAndReceiver);		
 		
 		response.setContentType("application/json");  
