@@ -37,8 +37,6 @@ public class SendingServlet extends HttpServlet {
 		MessageService messageService = new MessageService();
 		messageService.saveMessage(messageObject);
 		
-		messageService.getAllMessages(senderLogin, receiverLogin);
-		
 		message = senderLogin + ":" + messageContent;
 		
 		if(request.getParameter("message").toString().equals(""))

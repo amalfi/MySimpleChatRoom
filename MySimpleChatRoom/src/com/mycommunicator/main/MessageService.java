@@ -1,5 +1,6 @@
 package com.mycommunicator.main;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.HibernateException;
@@ -26,7 +27,6 @@ public class MessageService
 
     	session.beginTransaction();
     	
-    	
     	session.save(message);
     	
     	session.getTransaction().commit();
@@ -35,6 +35,7 @@ public class MessageService
 		}
 		catch(HibernateException he)
 		{
+			
 			if(session!=null)
 			{
 			session.close();
@@ -46,6 +47,7 @@ public class MessageService
 	
 	public List<Message> getAllMessages(String senderLogin, String receiverLogin)
 	{
+		List<Message> allMessagesForGivenSenderAndReceiver = new ArrayList<Message>();
 		try
 		{
 		Configuration configuration = new Configuration().configure();
@@ -63,7 +65,8 @@ public class MessageService
 		{
 			for(int i=0; i<list.size(); i++)
 			{
-				System.out.println(list.get(i).toString());
+				Message currentMessage = (Message)list.get(i);
+				allMessagesForGivenSenderAndReceiver.add(currentMessage);
 			}
 		
 		}
@@ -76,7 +79,7 @@ public class MessageService
 		{
 			System.out.println(he.getCause());
 		}
-		return null;
+		return allMessagesForGivenSenderAndReceiver;
 	}
 	
 }
